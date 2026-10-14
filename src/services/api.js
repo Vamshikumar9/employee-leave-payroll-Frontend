@@ -1,7 +1,10 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
+  baseURL:
+    import.meta.env.VITE_API_URL ||
+    import.meta.env.VITE_API_BASE_URL ||
+    'http://localhost:8080/api',
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -16,9 +19,15 @@ api.interceptors.response.use(
   error => {
     const token = sessionStorage.getItem('authToken')
     const url = error?.config?.url || ''
-    if (error?.response?.status === 401 && token && !url.includes('/auth/login')) {
+
+    if (
+      error?.response?.status === 401 &&
+      token &&
+      !url.includes('/auth/login')
+    ) {
       window.dispatchEvent(new Event('auth-expired'))
     }
+
     return Promise.reject(error)
   },
 )
